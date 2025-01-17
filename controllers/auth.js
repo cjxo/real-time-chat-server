@@ -64,7 +64,11 @@ module.exports = {
         return res.status(400).json({ message: "User not found" });
       }
 
-      res.json({ message: "Is authenticated", user: { ...user, password_hashed: undefined } });
+      res.json({
+        message: "Is authenticated",
+        remainingTime: req.remainingTime,
+        user: { ...user, password_hashed: undefined },
+      });
     } catch (err) {
       next(err);
     }
