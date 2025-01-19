@@ -1,5 +1,6 @@
 const db = require("../db/query");
 const bcrypt = require("bcryptjs");
+const sb = require("../lib/supabase");
 const { jwt } = require("../lib/utils");
 
 module.exports = {
@@ -18,10 +19,16 @@ module.exports = {
       const user = await db.user.getByEmail(email);
       if (user) {
         return res.status(400).json({ message: "Email is already being used" });
-      }
+      } 
 
       const hashed = await bcrypt.hash(password, 10);
-      const result = await db.user.insert(first_name, last_name, hashed, email);
+      const result = await db.user.insert(first_name, last_name, hashed, email); 
+
+      const sbResult = await sb.storage.newUserStore(result.id);
+      if (!sbResult) {
+        await db.user.deleteById(result.id);
+        return res.status(500).json({ message: "Failed to create user bucket" });
+      }
 
       res.status(201).json({ message: "Success. Please Sign In", user: result });
     } catch (err) {
