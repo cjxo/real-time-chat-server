@@ -62,7 +62,7 @@ const user = {
       }
     });
 
-    SQL += ` WHERE id = $${values.length + 1} RETURNING *`;
+    SQL += ` WHERE id = $${values.length + 1} RETURNING id, first_name, last_name, email, profile_pic_name, bio, joined_date, update_date;`;
     values.push(id);
 
     const { rows } = await pool.query(SQL, values);
