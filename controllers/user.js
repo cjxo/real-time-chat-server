@@ -41,4 +41,22 @@ module.exports = {
       next(err);
     }
   },
+
+  getAll: async (req, res, next) => {
+    try {
+      const users = await db.user.getAll(req.userId);
+      res.json({ message: "Request Granted", users });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  add: async (req, res, next) => {
+    try {
+      await db.user.add(req.userId, req.params.id);
+      res.status(201).json({ message: "Add successfully" })
+    } catch (err) {
+      next(err);
+    }
+  },
 };

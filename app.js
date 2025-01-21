@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
+const messageRouter = require("./routes/message");
 
 const app = express();
 app.use(cors({
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/message", messageRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Real Time Chat API." });
