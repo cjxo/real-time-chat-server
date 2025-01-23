@@ -1,7 +1,7 @@
 const pool = require("./pool");
 
 const SQL = `
-  --drop table if exists adds;
+  drop table if exists messages;
   CREATE TABLE IF NOT EXISTS users (
     id                INTEGER            PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     first_name        VARCHAR(256)       NOT NULL,
@@ -19,8 +19,7 @@ const SQL = `
     content           TEXT               NOT NULL,
     sender_id         INTEGER            REFERENCES users (id) ON DELETE CASCADE,
     recipient_id      INTEGER            REFERENCES users (id) ON DELETE CASCADE,
-    time_sent         TIMESTAMPTZ        DEFAULT (TIMEZONE('utc', NOW())) NOT NULL,
-    UNIQUE (sender_id, recipient_id)
+    time_sent         TIMESTAMPTZ        DEFAULT (TIMEZONE('utc', NOW())) NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS adds (

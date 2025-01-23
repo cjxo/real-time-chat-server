@@ -19,6 +19,22 @@ const userGetAll = async (whoAskedId) => {
   return rows;
 }
 
+const userGet = async (senderId, recieverId) => {
+  const SQL = `
+    SELECT
+      id, first_name, last_name, email, profile_pic_name, bio, joined_date, update_date,
+      EXISTS (
+        SELECT 1 FROM adds
+        WHERE ((id_a = users.id) AND (id_b = $1)) OR ((id_a = $1) AND (id_b = users.id))
+      ) AS added
+    FROM users
+    WHERE (id != $1) AND  (id = $2);
+  `;
+
+  const { rows } = await pool.query(SQL, [senderId, recieverId]);
+  return rows[0];
+}
+
 const user = {
   deleteById: async (id) => {
     const SQL = `
@@ -105,12 +121,55 @@ const message = {
         m.id, m.content, m.sender_id, m.recipient_id, m.time_sent
       FROM messages AS m
       INNER JOIN adds AS a
-        ON (m.sender_id = $1 AND m.recipient_id = a.id_b)
-        OR (m.sender_id = a.id_a AND m.recipient_id = $1)
+        ON (m.sender_id = $1 OR m.recipient_id = $1)
     `;
 
     const userAdds = await userGetAll(userId);
     const { rows } = await pool.query(SQL, [userId]);
+    console.log(rows);
+    console.log(userAdds);
+
+    if (rows.length === 0) {
+      return userAdds.map(user => ({ user, messages: [] }))
+    } else {
+      return userAdds.map(user => {
+        return {
+          user,
+          messages: rows.filter(message => {
+            return (message.sender_id === user.id) || (message.recipient_id === user.id);
+          })
+        }
+      });
+    }
+  },
+
+  insert: async (senderId, recieverId, content) => {
+    const SQL = `
+      INSERT INTO messages
+      (content, sender_id, recipient_id)
+      VALUES ($1, $2, $3)
+      RETURNING *;
+    `;
+    
+    const { rows } = await pool.query(SQL, [content, senderId, recieverId]);
+    return rows[0];
+  },
+
+  get: async (senderId, recieverId) => {
+    const SQL = `
+      SELECT
+        m.id, m.content, m.sender_id, m.recipient_id, m.time_sent
+      FROM messages AS m
+      WHERE ((m.sender_id = $1) AND (m.recipient_id = $2)) OR ((m.sender_id = $2) AND (m.recipient_id = $1));
+    `;
+
+    const userAdds = await userGet(senderId, recieverId);
+    if (!userAdds || !userAdds.added) {
+      throw new Error("SenderId can message RecieverId if and only if they follow each other");
+    }
+
+    const { rows } = await pool.query(SQL, [userId]);
+    console.log(rows);
 
     if (rows.length === 0) {
       return userAdds.map(user => ({ user, messages: [] }))
