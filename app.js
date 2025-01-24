@@ -4,12 +4,13 @@ const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
 const messageRouter = require("./routes/message");
+const { app, server } = require("./lib/socket.js");
 
-const app = express();
 app.use(cors({
   origin: ["http://localhost:5173"],
   credentials: true,
 }));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,6 +32,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.stack });
 });
 
-app.listen(3000, () => {
+ server.listen(3000, () => {
   console.log("Server Listening at port 3000");
 });

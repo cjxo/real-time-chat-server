@@ -126,8 +126,6 @@ const message = {
 
     const userAdds = await userGetAll(userId);
     const { rows } = await pool.query(SQL, [userId]);
-    console.log(rows);
-    console.log(userAdds);
 
     if (rows.length === 0) {
       return userAdds.map(user => ({ user, messages: [] }))
@@ -160,23 +158,26 @@ const message = {
       SELECT
         m.id, m.content, m.sender_id, m.recipient_id, m.time_sent
       FROM messages AS m
-      WHERE ((m.sender_id = $1) AND (m.recipient_id = $2)) OR ((m.sender_id = $2) AND (m.recipient_id = $1));
+      INNER JOIN adds AS a
+        ON ((m.sender_id = $1 AND m.recipient_id = $2) OR (m.sender_id = $2 AND m.recipient_id = $1));
     `;
 
-    const userAdds = await userGet(senderId, recieverId);
-    if (!userAdds || !userAdds.added) {
-      throw new Error("SenderId can message RecieverId if and only if they follow each other");
-    }
-
-    const { rows } = await pool.query(SQL, [userId]);
-    console.log(rows);
+    const userAdds = await userGetAll(senderId);
+    const { rows } = await pool.query(SQL, [senderId, recieverId]);
 
     if (rows.length === 0) {
       return userAdds.map(user => ({ user, messages: [] }))
     } else {
-      // TODO
+      return userAdds.map(user => {
+        return {
+          user,
+          messages: rows.filter(message => {
+            return (message.sender_id === user.id) || (message.recipient_id === user.id);
+          })
+        }
+      });
     }
-    return rows;
+
   },
 };
 
