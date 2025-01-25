@@ -120,11 +120,10 @@ const message = {
       SELECT
         m.id, m.content, m.sender_id, m.recipient_id, m.time_sent
       FROM messages AS m
-      INNER JOIN adds AS a
-        ON (m.sender_id = $1 OR m.recipient_id = $1)
+      WHERE (m.sender_id = $1 OR m.recipient_id = $1)
     `;
 
-    const userAdds = await userGetAll(userId);
+    const userAdds = (await userGetAll(userId)).filter(user => user.added);
     const { rows } = await pool.query(SQL, [userId]);
 
     if (rows.length === 0) {
@@ -158,26 +157,13 @@ const message = {
       SELECT
         m.id, m.content, m.sender_id, m.recipient_id, m.time_sent
       FROM messages AS m
-      INNER JOIN adds AS a
-        ON ((m.sender_id = $1 AND m.recipient_id = $2) OR (m.sender_id = $2 AND m.recipient_id = $1));
+      WHERE (m.sender_id = $1 AND m.recipient_id = $2) OR (m.sender_id = $2 AND m.recipient_id = $1);
     `;
 
-    const userAdds = await userGetAll(senderId);
+    const user = await userGet(senderId, recieverId);
     const { rows } = await pool.query(SQL, [senderId, recieverId]);
 
-    if (rows.length === 0) {
-      return userAdds.map(user => ({ user, messages: [] }))
-    } else {
-      return userAdds.map(user => {
-        return {
-          user,
-          messages: rows.filter(message => {
-            return (message.sender_id === user.id) || (message.recipient_id === user.id);
-          })
-        }
-      });
-    }
-
+    return { user, messages: rows };
   },
 };
 
