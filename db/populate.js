@@ -1,7 +1,6 @@
 const pool = require("./pool");
 
 const SQL = `
-  drop table if exists messages;
   CREATE TABLE IF NOT EXISTS users (
     id                INTEGER            PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     first_name        VARCHAR(256)       NOT NULL,

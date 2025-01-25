@@ -20,6 +20,14 @@ app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/message", messageRouter);
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client", "dist", "index.html"));
+  });
+}
+
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Real Time Chat API." });
 });
@@ -32,14 +40,6 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: err.stack });
 });
-
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client", "dist", "index.html"));
-  });
-}
 
  server.listen(3000, () => {
   console.log("Server Listening at port 3000");
