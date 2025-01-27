@@ -69,7 +69,7 @@ const user = {
     const SQL = `
       INSERT INTO users 
       (first_name, last_name, password_hashed, email)
-      VALUES ($1, $2, $3, LOWER($4))
+      VALUES ($1, $2, $3, $4)
       RETURNING id, first_name, last_name, email, profile_pic_name, bio, joined_date, update_date;
     `;
     

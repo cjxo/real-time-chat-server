@@ -43,3 +43,4 @@ The server will start and listen for incoming connections at http://localhost:30
 - Image Messaging
 - Block User
 - Two different users can message each other if and only if they have mutually added each other.
+- Update User Profile Pic
