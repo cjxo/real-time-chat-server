@@ -7,21 +7,11 @@ of Render!
 # Prerequisites
 - Node.js
 - PostgreSQL
-- Supabase Account
-    - Create an account at [supabase](https://supabase.com/) and create a project.
-    - Once you created a project, you will want to grab the Project URL and anon Project API key
-    under the API settings.
 
 # Environment Variables Setup
 Create a .env file that contains the following variables:
-- PGUSER
-- PGPASSWORD
-- PGDATABASE
-- PGPORT
-- PGHOST
-- JWT_SECRET_KEY
-- SUPABASE_PROJ_URL
-- SUPABASE_API_KEY
+- PG_CONNECTION_STRING - A PG connection string for the database. Please see [connectionString field of Config](https://node-postgres.com/apis/client).
+- JWT_SECRET_KEY - A JWT secret key for jsonwebtoken operations. Please see the [secretOrPrivateKey parameter of jwt.sign](https://www.npmjs.com/package/jsonwebtoken).
 
 # Installation
 ```bash
@@ -42,7 +32,8 @@ npm run dev
 The server will start and listen for incoming connections at http://localhost:3000
 
 # Missing Features
-- Image Messaging
+- Supabase for storage
+- Send Image Messaging
 - Block User
-- Two different users can message each other if and only if they have mutually added each other.
+- Two different users can message each other if and only if they have mutually added each other
 - Update User Profile Pic

@@ -32,7 +32,8 @@ const SQL = `
 const main = async () => {
   const client = await pool.connect();
   await client.query(SQL);
-  client.release();
+  await client.release();
+  await pool.end();
 };
 
 main();
